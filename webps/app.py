@@ -173,5 +173,36 @@ class ModelMetaclass(type):
     attrs['__delete__'] = 'delete from `%s` where `%s`=?'%(tableName,primaryKey)
     return type.__new__(cls,name,bases,sttrs)
 
+class Model(dict)
+
+    ...
+    
+    @classmethod
+    async def find(cls,pk):
+        ' find project by primary key '
+        rs = await select('%s where `%s`=?'%(cls.__select__,cls.__primary_key__),[pk],1)
+        if len(rs)==0:
+            return None
+        return cls(**rs[0])
+        
+user = await User.find('123')
+
+class Model(dict):
+
+    ...
+    
+    async def save(self):
+        args = list(map(self.getValueOrDefault,self.__fields__))
+        args.append(self.getValueOrDefault(self.__fields__))
+        rows - await execute(self.__insert__,args)
+        if rows != 1:
+            logging.warn('failed to insert record : affected rows:%s'%rows)
+
+#这样就可以把一个实例存入数据库：            
+user = User(id=123,name='Yinghuo')
+await user.save()
+
+
+
 
 
