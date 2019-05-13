@@ -34,7 +34,7 @@ async def select(sql,args,size=None):
     log(sql,args)
     global __pool
     async with __pool.get() as conn:
-        async with conn.cursor(aiomysql.DictCuesor) as cur:
+        async with conn.cursor(aiomysql.DictCursor) as cur:
             await cur.execute(sql.replace('?','%s'), args or ())
             if size:
                 rs = await cur.fetchmany(size)
@@ -112,25 +112,25 @@ class ModelMetaclass(type):
             return type.__new__(cls,name,bases,attrs)
         #获取table名称：
         tableName = attrs.get('__table__',None) or name
-        logging,info('found model: %s (table:%s)' %(name,tableName))
+        logging.info('found model: %s (table:%s)' %(name,tableName))
         #获取所有的Field和主键名:
-        mappinga = dict()
-        field = []
+        mappings = dict()
+        fields = []
         primaryKey = None
         for k,v in attrs.items():
             if isinstance(v,Field):
                 logging.info('  found mapping:%s ==> %s'%(k,v))
-                mapping[k] = v
+                mappings[k] = v
                 if v.primary_key:
                     #找到主键：
                     if primaryKey:
                         raise RuntimeError('Duplicate primary key for field:%s' %k)
-                    primary = k
+                    primaryKey = k
                 else:
                     fields.append(k)
         if not primaryKey:
             raise RuntimeError('Primary key not found.')
-        for k in mappings.key():
+        for k in mappings.keys():
             attrs.pop(k)
         escaped_fields = list(map(lambda f: '`%s`'%f,fields))
         attrs['__mappings__'] = mappings  #保存属性和列的映射关系
@@ -140,9 +140,9 @@ class ModelMetaclass(type):
         #构造默认的SELECT,INSERT,UPDATE,DELETE语句
         attrs['__select__'] = 'select `%s`,%s from `%s`' %(primaryKey,','.join(escaped_fields),tableName)
         attrs['__insert__'] = 'insert into `%s` (%s,`%s`) values (%s)' % (tableName,','.join(escaped_fields),primaryKey,create_args_string(len(escaped_fields)+1))
-        attrs['__update__'] = 'update `%s` set %s where `%s`=?'%(tableName,',',join(map(lambda f: '`%s`=?'%(mappings.get(f).name or f),fields)),primaryKey)
+        attrs['__update__'] = 'update `%s` set %s where `%s`=?'%(tableName,','.join(map(lambda f: '`%s`=?'%(mappings.get(f).name or f),fields)),primaryKey)
         attrs['__delete__'] = 'delete from `%s` where `%s`=?'%(tableName,primaryKey)
-        return type.__new__(cls,name,bases,sttrs)
+        return type.__new__(cls,name,bases,attrs)
 
 #定义Model
 #首先定义的是所有ORM映射的基类Model
@@ -155,13 +155,13 @@ class Model(dict,metaclass=ModelMetaclass):
         try:
             return self[key]
         except KeyError:
-            raise AttrbuteError(r"'Model' object has no attrbute '%s'"%key)
+            raise AttributeError(r"'Model' object has no attrbute '%s'"%key)
             
     def __setattr__(self,key,value):
         self[key] = value
         
-    def getValue(self,key,value):
-        self[key]=value
+    def getValue(self,key):
+        return getattr(self,key,None)
         
     def getValueOrDefault(self,key):
         value = getattr(self,key,None)
@@ -182,7 +182,7 @@ class Model(dict,metaclass=ModelMetaclass):
             sql.append(where)
         if args is None:
             args = []
-        orderrBy = kw.get('orderBy',None)
+        orderBy = kw.get('orderBy',None)
         if orderBy:
             sql.append('order by')
             sql.append(orderBy)
@@ -190,10 +190,10 @@ class Model(dict,metaclass=ModelMetaclass):
         if limit is not None:
             sql.append('limit')
             if isinstance(limit,int):
-                sql.sppend('?')
+                sql.append('?')
                 args.append(limit)
             elif isinstance(limit,tuple) and len(limit)==2:
-                sql.qppend('?,?')
+                sql.append('?,?')
                 args.extend(limit)
             else:
                 raise ValueError('Invalid limit value :%s'%str(limit))
@@ -223,7 +223,7 @@ class Model(dict,metaclass=ModelMetaclass):
     async def save(self):
         args = list(map(self.getValueOrDefault,self.__fields__))
         args.append(self.getValueOrDefault(self.__primary_key__))
-        rows = awaitexecute(self.__insert__,args)
+        rows = await execute(self.__insert__,args)
         if rows !=1:
             logging.warn('failed to insert record : affected rows : %s'% rows)
             
