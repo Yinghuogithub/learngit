@@ -106,7 +106,7 @@ def datetime_filter(t):
         return u'%s小时前' % (delta//3600)
     if delta < 604800:
         return u'%s天前' % (delta//86400)
-    dt datetime.fromtimestamp(t)
+    dt = datetime.fromtimestamp(t)
     return u'%s年%s月%s日' % (dt.year, dt.month, dt.day)
 
 async def init(loop):
@@ -114,7 +114,7 @@ async def init(loop):
     app = web.Application(loop=loop,middlewares=[
         logger_factory,response_factory
     ])
-    init_jinja2(app,filterrs=dict(datetime_filterr)
+    init_jinja2(app,filters=dict(datetime_filter))
     add_routes(app,'handlers')
     add_static(app)
     srv = await loop.create_server(app.make_hanlder(),'127.0.0.1',9000)
