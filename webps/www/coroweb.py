@@ -165,7 +165,7 @@ def add_routes(app,module_name):
     for attr in dir(mod):
         if attr.startswith('_'):
             continue
-        fn = getattr(mod.attr)
+        fn = getattr(mod,attr)
         if callable(fn):
             method = getattr(fn,'__method__',None)
             path = getattr(fn,'__routee__',None)

@@ -24,7 +24,7 @@ def init_jinja2(app,**kw):
         autoescape = kw.get('sutoescape',True),
         block_start_string = kw.get('block_start_string','{%'),
         block_end_string = kw.get('block_end_string','%}'),
-        variable_starrt_string = kw.get('variable_start_dtring','{{'),
+        variable_start_string = kw.get('variable_start_dtring','{{'),
         variable_end_string = kw.get('variable_end_string','}}'),
         auto_reload = kw.get('auto_raload',True)
     )
@@ -110,11 +110,11 @@ def datetime_filter(t):
     return u'%s年%s月%s日' % (dt.year, dt.month, dt.day)
 
 async def init(loop):
-    await orm.create_pool(loop=loop,host='127.0.0.1',port=3306,user='www',password='www',db='awesome')
+    await orm.create_pool(loop=loop,host='127.0.0.1',port=3306,user='root',password='password',db='yinghuo')
     app = web.Application(loop=loop,middlewares=[
         logger_factory,response_factory
     ])
-    init_jinja2(app,filters=dict(datetime_filter))
+    init_jinja2(app,filters=dict(datetime = datetime_filter))
     add_routes(app,'handlers')
     add_static(app)
     srv = await loop.create_server(app.make_handler(),'127.0.0.1',9000)
