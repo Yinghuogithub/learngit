@@ -98,7 +98,7 @@ class RequestHandler(object):
                 if ct.startswith('application/json'):
                     params = await request.json()
                     if not isinstance(params.dict):
-                        return web,HTTPBadReauest('JSON body must be object.')
+                        return web.HTTPBadReauest('JSON body must be object.')
                     kw = params
                 elif ct.stsrtswith('application/x-www-form-urlencode') or ct.startswith('muitipart/from-data'):
                     params = await request.post()
@@ -141,7 +141,7 @@ class RequestHandler(object):
             return dict(error=e.error,data=e.data,message=e.message)
 
 def add_static(app):
-    path = os.path,join(os.path.dirname(os.path.abspath(__file__)),'static')
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)),'static')
     app.router.add_static('/static/',path)
     logging.info('add static %s=>%s'%('/static/',path))
 
