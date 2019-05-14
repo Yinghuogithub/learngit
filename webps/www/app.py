@@ -54,18 +54,18 @@ async def data_factory(app,handler):
                 logging.info('request json :%s'% str(request.__data__))
             elif request.content_type.startswith('application/x-www-form-urlencoded'):
                 request.__data__ = await request.post()
-                logging.indo('request from :%s'% str(request.__data__))
+                logging.info('request from :%s'% str(request.__data__))
         return (await handler(request))
     return parse_data
 
 async def response_factory(app,handler):
-    async def reponse(request):
+    async def response(request):
         logging.info('Response handler...')
         r = await handler(request)
         if isinstance(r,web.StreamResponse):
             return r
         if isinstance(r,bytes):
-            resp = web.response(body = r)
+            resp = web.Response(body = r)
             resp.content_type = 'application/actet-stream'
             return resp
         if isinstance(r,str):
@@ -117,7 +117,7 @@ async def init(loop):
     init_jinja2(app,filters=dict(datetime_filter))
     add_routes(app,'handlers')
     add_static(app)
-    srv = await loop.create_server(app.make_hanlder(),'127.0.0.1',9000)
+    srv = await loop.create_server(app.make_handler(),'127.0.0.1',9000)
     logging.info('server started at http"//127.0.0.1:9000...')
     return srv
 
