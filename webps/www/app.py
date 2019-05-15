@@ -9,14 +9,18 @@ async web application
 
 import logging; logging.basicConfig(level=logging.INFO)
 
-import asyncio,os,json,time
+import asyncio
+import json
+import os
+import time
 from datetime import datetime
 
 from aiohttp import web
-from jinja2 import Environment,FileSystemLoader
+from jinja2 import Environment, FileSystemLoader
 
 import orm
-from coroweb import add_routes,add_static
+from coroweb import add_routes, add_static
+
 
 def init_jinja2(app,**kw):
     logging.info('init jinja2...')
@@ -132,4 +136,3 @@ async def init(loop):
 loop = asyncio.get_event_loop()
 loop.run_until_complete(init(loop))
 loop.run_forever()
-
