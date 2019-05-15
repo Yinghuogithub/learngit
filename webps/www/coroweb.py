@@ -74,7 +74,7 @@ def has_request_arg(fn):
             found = True
             continue
         if found and (param.kind != inspect.Parameter.VAR_POSITIONAL and param.kind != inspect.Parameter.KEYWORD_ONLY and param.kind != inspect.Parameter.VAR_KEYWORD):
-            raise ValueError('request parameter must be the last namedd parameter in function:%s%s'%(fn.__name__,str(sig)))
+            raise ValueError('request parameter must be the last named parameter in function:%s%s'%(fn.__name__,str(sig)))
     return found
 
 class RequestHandler(object):
@@ -93,14 +93,14 @@ class RequestHandler(object):
         if self._has_var_kw_arg or self._has_named_kw_args or self._required_kw_args:
             if request.methd == 'POST':
                 if not request.content_type:
-                    return web.HTTPBadReauest('Missing Content-Type.')
+                    return web.HTTPBadRequest('Missing Content-Type.')
                 ct = request.content_type.lower()
                 if ct.startswith('application/json'):
                     params = await request.json()
                     if not isinstance(params.dict):
-                        return web.HTTPBadReauest('JSON body must be object.')
+                        return web.HTTPBadRequest('JSON body must be object.')
                     kw = params
-                elif ct.stsrtswith('application/x-www-form-urlencode') or ct.startswith('muitipart/from-data'):
+                elif ct.stsrtswith('application/x-www-form-urlencode') or ct.startswith('multipart/from-data'):
                     params = await request.post()
                     kw = dict(**params)
                 else:

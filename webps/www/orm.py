@@ -152,7 +152,7 @@ class Model(dict,metaclass=ModelMetaclass):
         try:
             return self[key]
         except KeyError:
-            raise AttributeError(r"'Model' object has no attrbute '%s'"%key)
+            raise AttributeError(r"'Model' object has no attribute '%s'"%key)
             
     def __setattr__(self,key,value):
         self[key] = value
