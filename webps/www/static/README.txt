@@ -1,1 +1,1 @@
-Stores static file.
+stores static files.

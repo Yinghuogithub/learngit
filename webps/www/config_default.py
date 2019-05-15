@@ -12,11 +12,11 @@ configs = {
     'db':{
         'host':'127.0.0.1',
         'port':3306,
-        'user':'www',
-        'password':'www',
-        'db':'awesome'
+        'user':'root',
+        'password':'password',
+        'db':'yinghuo'
     },
     'session':{
-        'secret':'Awesome'
+        'secret':'Yinghuo'
     }
 }
